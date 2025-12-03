@@ -1,0 +1,111 @@
+---
+title: Framework Integration
+description: Using PondPilot Widget with React, Vue, and other frameworks.
+sidebar:
+  order: 6
+---
+
+Since the widget operates on DOM elements, it's easy to wrap in a component for your favorite framework.
+
+## React
+
+Use a `useRef` to target the DOM element and `useEffect` to initialize the widget.
+
+```jsx
+import React, { useEffect, useRef } from 'react';
+import 'pondpilot-widget'; // Registers window.PondPilot
+
+function SQLEditor({ sql, options }) {
+  const preRef = useRef(null);
+  const widgetRef = useRef(null);
+
+  useEffect(() => {
+    if (preRef.current) {
+      // Create widget instance
+      widgetRef.current = window.PondPilot.create(preRef.current, options);
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (widgetRef.current) {
+        widgetRef.current.destroy();
+      }
+    };
+  }, [options]);
+
+  return (
+    <pre ref={preRef} className="pondpilot-snippet">
+      {sql}
+    </pre>
+  );
+}
+
+export default function App() {
+  return (
+    <SQLEditor 
+      sql="SELECT * FROM generate_series(1, 10);" 
+      options={{ theme: 'dark', editable: true }} 
+    />
+  );
+}
+```
+
+## Vue 3
+
+Use `ref` and `onMounted`/`onBeforeUnmount`.
+
+```vue
+<template>
+  <pre ref="editorRef" class="pondpilot-snippet">{{ sql }}</pre>
+</template>
+
+<script setup>
+import { ref, onMounted, onBeforeUnmount } from 'vue';
+import 'pondpilot-widget';
+
+const props = defineProps(['sql', 'options']);
+const editorRef = ref(null);
+let widget = null;
+
+onMounted(() => {
+  if (editorRef.value) {
+    widget = window.PondPilot.create(editorRef.value, props.options);
+  }
+});
+
+onBeforeUnmount(() => {
+  if (widget) {
+    widget.destroy();
+  }
+});
+</script>
+```
+
+## Documentation Generators
+
+### Docusaurus
+
+Add the script to `docusaurus.config.js`:
+
+```javascript
+module.exports = {
+  // ...
+  scripts: [
+    'https://unpkg.com/pondpilot-widget'
+  ],
+};
+```
+
+### VitePress
+
+Import the widget in your theme entry (`.vitepress/theme/index.js`):
+
+```javascript
+import DefaultTheme from 'vitepress/theme';
+import 'pondpilot-widget';
+
+export default {
+  ...DefaultTheme,
+  // ...
+};
+```

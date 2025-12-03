@@ -1,0 +1,184 @@
+---
+title: PondPilot Documentation
+description: Documentation for the PondPilot ecosystem - data exploration tools that run entirely in your browser.
+template: splash
+hero:
+  tagline: Privacy-first data exploration tools that run entirely in your browser.
+  image:
+    html: <img src="/polly.svg" alt="Polly - PondPilot mascot" width="200" height="165" />
+  actions:
+    - text: Get Started
+      link: /pondpilot/getting-started/
+      icon: right-arrow
+    - text: View on GitHub
+      link: https://github.com/pondpilot
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+<div class="features-grid">
+  <div class="feature">
+    <div class="feature-icon">🔒</div>
+    <h3>Privacy First</h3>
+    <p>Your data never leaves your device. All processing happens in your browser.</p>
+  </div>
+  <div class="feature">
+    <div class="feature-icon">⚡</div>
+    <h3>Zero Setup</h3>
+    <p>No installation, no server, no configuration. Just open and start exploring.</p>
+  </div>
+  <div class="feature">
+    <div class="feature-icon">🔍</div>
+    <h3>Powerful SQL</h3>
+    <p>Full DuckDB SQL support with AI assistance for query generation.</p>
+  </div>
+  <div class="feature">
+    <div class="feature-icon">💻</div>
+    <h3>Open Source</h3>
+    <p>All tools in the ecosystem are open source and free to use.</p>
+  </div>
+</div>
+
+## The Ecosystem
+
+<CardGrid>
+  <Card title="PondPilot" icon="rocket">
+    The main data exploration app. Analyze local and remote data with SQL, powered by DuckDB-WASM. Zero setup, 100% client-side.
+
+    [Learn more →](/pondpilot/getting-started/)
+  </Card>
+  <Card title="FlowScope" icon="random">
+    SQL lineage engine that analyzes queries to produce detailed lineage graphs showing how tables and columns flow through transformations.
+
+    [Learn more →](/flowscope/getting-started/)
+  </Card>
+  <Card title="Widget" icon="puzzle">
+    Transform static SQL code blocks into interactive, browser-based SQL editors. Perfect for documentation and tutorials.
+
+    [Learn more →](/widget/getting-started/)
+  </Card>
+  <Card title="CORS Proxy" icon="external">
+    Transparent CORS proxy service enabling browser-based access to remote databases and files without CORS headers.
+
+    [Learn more →](/cors-proxy/overview/)
+  </Card>
+</CardGrid>
+
+## Quick Start
+
+Get started in seconds - just open PondPilot and run your first query:
+
+```sql
+-- Load a CSV file directly from URL
+SELECT * FROM 'https://example.com/data.csv' LIMIT 10;
+
+-- Or analyze local files by dragging them into the app
+SELECT column_name, COUNT(*) as count
+FROM my_data.parquet
+GROUP BY column_name
+ORDER BY count DESC;
+```
+
+<div class="cta-section">
+  <a href="https://app.pondpilot.io" class="cta-button primary">
+    Launch PondPilot
+  </a>
+  <a href="/pondpilot/getting-started/" class="cta-button secondary">
+    Read the Docs
+  </a>
+</div>
+
+<style>
+{`
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin: 2rem 0 3rem;
+  }
+
+  @media (max-width: 600px) {
+    .features-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .feature {
+    background: var(--sl-color-gray-6);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .feature:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    border-color: var(--sl-color-accent);
+  }
+
+  .feature-icon {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .feature h3 {
+    color: var(--sl-color-white);
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+  }
+
+  .feature p {
+    color: var(--sl-color-gray-2);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .cta-section {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin: 2.5rem 0;
+    flex-wrap: wrap;
+  }
+
+  .cta-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.875rem 2rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .cta-button.primary {
+    background: var(--sl-color-accent);
+    color: var(--sl-color-black);
+  }
+
+  .cta-button.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(76, 97, 255, 0.4);
+  }
+
+  .cta-button.secondary {
+    background: transparent;
+    color: var(--sl-color-white);
+    border: 1px solid var(--sl-color-gray-4);
+  }
+
+  .cta-button.secondary:hover {
+    border-color: var(--sl-color-accent);
+    background: var(--sl-color-accent-low);
+  }
+`}
+</style>
