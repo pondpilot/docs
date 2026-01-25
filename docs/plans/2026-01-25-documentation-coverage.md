@@ -11,12 +11,12 @@ Add user-facing documentation for PondPilot Proxy, FlowScope, and CORS Proxy to 
 
 Create complete user-facing documentation for PondPilot Proxy, which currently has zero pages in the central docs. This is the highest priority gap as the product enables cross-database queries—a powerful feature with no central documentation. Source content from the repo at `../pondpilot-proxy/`.
 
-- [ ] Create `src/content/docs/proxy/index.md` — Overview: what Proxy does, use cases (cross-database joins, analytics on external DBs), when to use it
-- [ ] Create `src/content/docs/proxy/getting-started.md` — Quick start: installation, Docker setup, connecting to first database, running first query
-- [ ] Create `src/content/docs/proxy/configuration.md` — YAML configuration, environment variables, authentication methods (API keys, JWT), connection pooling settings
-- [ ] Create `src/content/docs/proxy/cross-database-queries.md` — Main feature guide: attaching multiple databases, cross-database JOIN examples, supported databases (PostgreSQL, MySQL, SQLite, DuckDB)
-- [ ] Create `src/content/docs/proxy/deployment.md` — Production deployment: Docker Compose, health checks, rate limiting, audit logging
-- [ ] Verify all 5 Proxy pages render correctly with `yarn dev`
+- [x] Create `src/content/docs/proxy/index.md` — Overview: what Proxy does, use cases (cross-database joins, analytics on external DBs), when to use it
+- [x] Create `src/content/docs/proxy/getting-started.md` — Quick start: installation, Docker setup, connecting to first database, running first query
+- [x] Create `src/content/docs/proxy/configuration.md` — YAML configuration, environment variables, authentication methods (API keys, JWT), connection pooling settings
+- [x] Create `src/content/docs/proxy/cross-database-queries.md` — Main feature guide: attaching multiple databases, cross-database JOIN examples, supported databases (PostgreSQL, MySQL, SQLite, DuckDB)
+- [x] Create `src/content/docs/proxy/deployment.md` — Production deployment: Docker Compose, health checks, rate limiting, audit logging
+- [x] Verify all 5 Proxy pages render correctly with `yarn dev`
 
 ### Task 2: FlowScope Documentation
 
