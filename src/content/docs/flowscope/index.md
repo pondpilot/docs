@@ -1,6 +1,8 @@
 ---
 title: FlowScope
 description: A privacy-first SQL lineage analysis engine that traces how data flows through your queries.
+sidebar:
+  order: 0
 ---
 
 FlowScope analyzes SQL queries to produce detailed lineage graphs showing how tables, CTEs, and columns flow through data transformations. All processing happens in your browser via WebAssembly—your SQL never leaves your device.

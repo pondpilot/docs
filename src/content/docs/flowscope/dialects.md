@@ -1,6 +1,8 @@
 ---
 title: SQL Dialects
 description: Supported SQL dialects, syntax differences, and dialect-specific features.
+sidebar:
+  order: 4
 ---
 
 FlowScope supports 13 SQL dialects with varying levels of syntax coverage. Selecting the correct dialect ensures accurate parsing of dialect-specific functions, quoting styles, and statement syntax.

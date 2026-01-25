@@ -1,6 +1,8 @@
 ---
 title: Lineage Visualization
 description: Understanding the lineage graph, node types, views, and navigation controls.
+sidebar:
+  order: 3
 ---
 
 FlowScope visualizes SQL lineage as an interactive graph. This guide explains how to read the graph, understand different node types, and navigate complex lineage structures.

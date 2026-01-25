@@ -1,6 +1,8 @@
 ---
 title: Security
 description: Security features, SSRF protection, and threat model of the CORS Proxy.
+sidebar:
+  order: 3
 ---
 
 The CORS Proxy is designed with security as a core principle. This page documents the security features, threat model, and configuration options for hardening your deployment.

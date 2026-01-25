@@ -1,6 +1,8 @@
 ---
 title: CORS Proxy
 description: Enable browser-based access to remote data sources without CORS headers.
+sidebar:
+  order: 0
 ---
 
 The PondPilot CORS Proxy is a transparent proxy service that enables browser-based applications to access remote files and databases that don't have CORS headers configured. All requests are proxied without logging, caching, or modification—your data remains private.

@@ -1,6 +1,8 @@
 ---
 title: Self-Hosting
 description: Deploy your own CORS Proxy with Docker, Cloudflare Workers, or Node.js.
+sidebar:
+  order: 2
 ---
 
 For maximum privacy or enterprise requirements, you can run your own CORS Proxy instance. This guide covers deployment options from quick Docker setup to production Cloudflare Workers deployment.

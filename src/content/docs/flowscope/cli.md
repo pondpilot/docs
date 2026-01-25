@@ -1,6 +1,8 @@
 ---
 title: CLI Reference
 description: Command-line interface for FlowScope SQL lineage analysis.
+sidebar:
+  order: 6
 ---
 
 The FlowScope CLI analyzes SQL files from the command line, producing lineage in multiple output formats. It also includes a serve mode that runs an embedded web UI with file watching.

@@ -1,6 +1,8 @@
 ---
 title: API Reference
 description: NPM packages for embedding FlowScope lineage analysis in your applications.
+sidebar:
+  order: 7
 ---
 
 FlowScope is available as NPM packages for embedding SQL lineage analysis in your own applications. The core package provides the analysis engine, while the React package provides visualization components.

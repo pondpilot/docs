@@ -1,6 +1,8 @@
 ---
 title: Advanced Patterns
 description: CTE handling, dbt/Jinja templates, subqueries, and complex transformations.
+sidebar:
+  order: 5
 ---
 
 FlowScope handles advanced SQL patterns including CTEs, templated SQL, and complex transformations. This guide covers how FlowScope analyzes these patterns and how to get the most accurate lineage.

@@ -1,6 +1,8 @@
 ---
 title: PondPilot Proxy
 description: Query PostgreSQL, MySQL, and SQLite databases through DuckDB's analytics engine via HTTP API.
+sidebar:
+  order: 0
 ---
 
 PondPilot Proxy extends DuckDB with the ability to query external databases seamlessly. Run complex analytical queries across multiple database systems—all via a simple HTTP API.

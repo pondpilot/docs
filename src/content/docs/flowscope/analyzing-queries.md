@@ -1,6 +1,8 @@
 ---
 title: Analyzing Queries
 description: Input methods, query validation, supported statement types, and error handling.
+sidebar:
+  order: 2
 ---
 
 FlowScope supports multiple ways to input SQL for analysis and handles a wide range of SQL statement types. This guide covers input methods, supported queries, and how to interpret validation results.

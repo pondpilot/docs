@@ -1,6 +1,8 @@
 ---
 title: Usage Guide
 description: How to use the CORS Proxy with PondPilot and other browser-based tools.
+sidebar:
+  order: 1
 ---
 
 The CORS Proxy provides two URL formats for accessing remote resources. This guide covers both formats, common use cases, and integration with PondPilot.
