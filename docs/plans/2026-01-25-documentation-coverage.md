@@ -22,15 +22,15 @@ Create complete user-facing documentation for PondPilot Proxy, which currently h
 
 Expand FlowScope from 1 page to complete user-facing coverage. Focus is on the web application at flowscope.pondpilot.io—how to use the UI for SQL lineage analysis. CLI gets its own section, npm package is a brief mention. Source content from the repo at `../flowscope/`.
 
-- [ ] Create `src/content/docs/flowscope/index.md` — Overview: what SQL lineage is, why it matters, key features of FlowScope
-- [ ] Enhance `src/content/docs/flowscope/getting-started.md` — First analysis walkthrough: paste SQL, view lineage graph, understand results
-- [ ] Create `src/content/docs/flowscope/analyzing-queries.md` — Detailed guide: input methods, query validation, error messages, supported query types
-- [ ] Create `src/content/docs/flowscope/lineage-visualization.md` — Reading the graph: table-level vs column-level lineage, node types, expanding/collapsing, navigation controls
-- [ ] Create `src/content/docs/flowscope/dialects.md` — Supported SQL dialects: PostgreSQL, Snowflake, BigQuery, DuckDB, Redshift, ANSI SQL; syntax differences and limitations
-- [ ] Create `src/content/docs/flowscope/advanced.md` — Advanced patterns: CTE handling, dbt/Jinja template support, subqueries, complex transformations
-- [ ] Create `src/content/docs/flowscope/cli.md` — CLI reference: installation, commands, options, usage examples, output formats
-- [ ] Create `src/content/docs/flowscope/api.md` — Brief API section: npm package mention (@pondpilot/flowscope-core), basic usage example, link to repo for details
-- [ ] Verify all 8 FlowScope pages render correctly with `yarn dev`
+- [x] Create `src/content/docs/flowscope/index.md` — Overview: what SQL lineage is, why it matters, key features of FlowScope
+- [x] Enhance `src/content/docs/flowscope/getting-started.md` — First analysis walkthrough: paste SQL, view lineage graph, understand results
+- [x] Create `src/content/docs/flowscope/analyzing-queries.md` — Detailed guide: input methods, query validation, error messages, supported query types
+- [x] Create `src/content/docs/flowscope/lineage-visualization.md` — Reading the graph: table-level vs column-level lineage, node types, expanding/collapsing, navigation controls
+- [x] Create `src/content/docs/flowscope/dialects.md` — Supported SQL dialects: PostgreSQL, Snowflake, BigQuery, DuckDB, Redshift, ANSI SQL; syntax differences and limitations
+- [x] Create `src/content/docs/flowscope/advanced.md` — Advanced patterns: CTE handling, dbt/Jinja template support, subqueries, complex transformations
+- [x] Create `src/content/docs/flowscope/cli.md` — CLI reference: installation, commands, options, usage examples, output formats
+- [x] Create `src/content/docs/flowscope/api.md` — Brief API section: npm package mention (@pondpilot/flowscope-core), basic usage example, link to repo for details
+- [x] Verify all 8 FlowScope pages render correctly with `yarn dev`
 
 ### Task 3: CORS Proxy Documentation
 
