@@ -1,56 +1,102 @@
 ---
-title: CORS Proxy Overview
+title: CORS Proxy
 description: Enable browser-based access to remote data sources without CORS headers.
 ---
 
-The PondPilot CORS Proxy is a transparent proxy service that enables browser-based access to remote databases and files that don't have CORS headers.
+The PondPilot CORS Proxy is a transparent proxy service that enables browser-based applications to access remote files and databases that don't have CORS headers configured. All requests are proxied without logging, caching, or modification—your data remains private.
 
-## Why Use a CORS Proxy?
+## What is CORS?
 
-Browser security policies (CORS) prevent web applications from accessing resources on different domains unless the server explicitly allows it. Many public data sources (S3, CloudFront, etc.) don't include CORS headers, making them inaccessible from browser-based tools like PondPilot.
+Cross-Origin Resource Sharing (CORS) is a browser security mechanism that prevents web pages from making requests to different domains unless the server explicitly allows it. When you try to load a file from `https://data.example.com` in a web app running at `https://app.pondpilot.io`, your browser blocks the request unless `data.example.com` sends proper CORS headers.
 
-The CORS Proxy solves this by:
-1. Receiving your request
-2. Fetching the data from the source
-3. Adding CORS headers to the response
-4. Returning the data to your browser
+```
+┌─────────────────┐         ┌─────────────────┐
+│   Your Browser  │ ──────▶ │  Remote Server  │
+│  (PondPilot)    │ ◀────── │  (no CORS)      │
+└─────────────────┘   ❌    └─────────────────┘
+                    Blocked by browser security
+```
+
+Many public data sources—S3 buckets, CloudFront distributions, government data portals—don't include CORS headers, making them inaccessible from browser-based tools like PondPilot.
+
+## How the CORS Proxy Helps
+
+The CORS Proxy acts as an intermediary that:
+
+1. Receives your request from PondPilot
+2. Fetches the data from the original source
+3. Adds proper CORS headers to the response
+4. Returns the data to your browser
+
+```
+┌─────────────────┐         ┌─────────────────┐         ┌─────────────────┐
+│   Your Browser  │ ──────▶ │   CORS Proxy    │ ──────▶ │  Remote Server  │
+│  (PondPilot)    │ ◀────── │  (adds headers) │ ◀────── │  (no CORS)      │
+└─────────────────┘    ✓    └─────────────────┘    ✓    └─────────────────┘
+```
+
+## When You Need the CORS Proxy
+
+Use the CORS Proxy when accessing:
+
+- **Remote Parquet/CSV files** on S3, CloudFront, or other CDNs without CORS
+- **Remote DuckDB databases** for read-only analytics
+- **Public data portals** (data.gov, data.gouv.fr, etc.)
+- **GitHub raw files** and releases
+- **Any HTTPS resource** blocked by browser CORS policies
+
+PondPilot automatically uses the CORS Proxy when loading remote files that would otherwise fail.
+
+## Privacy Guarantees
+
+The CORS Proxy is designed with privacy as a core principle:
+
+- **No Logging** - Request URLs and data are never logged or retained
+- **No Caching** - Data passes through without storage
+- **No Modification** - Responses are streamed unaltered
+- **No Tracking** - No cookies, analytics, or user identification
+- **HTTPS Only** - All traffic is encrypted in transit
 
 ## Usage Options
 
 ### Official Hosted Service
 
-Use the official proxy at `https://cors-proxy.pondpilot.io`:
+The official proxy is available at `https://cors-proxy.pondpilot.io`:
 
 ```
-https://cors-proxy.pondpilot.io/?url=https://example.com/data.parquet
+https://cors-proxy.pondpilot.io/proxy?url=https://example.com/data.parquet
 ```
 
-This is automatically used by PondPilot when loading remote files.
+This service is free, globally distributed via Cloudflare's edge network, and automatically used by PondPilot when needed.
 
 ### Self-Hosted
 
-For production use or additional privacy, you can self-host the proxy:
+For maximum privacy or enterprise requirements, you can run your own proxy:
 
 ```bash
 docker run -p 3000:3000 ghcr.io/pondpilot/cors-proxy
 ```
 
-Or deploy to Cloudflare Workers for edge deployment.
+See the [Self-Hosting Guide](/cors-proxy/self-hosted/) for deployment options.
 
-## Security Features
+## Quick Links
 
-The CORS Proxy includes several security features:
+import { Card, CardGrid } from '@astrojs/starlight/components';
 
-- **SSRF Protection**: Blocks requests to private IPs, localhost, and cloud metadata services
-- **Domain Allowlisting**: Configure which domains can be proxied
-- **Redirect Blocking**: Prevents following redirects to private networks
-- **Origin Validation**: Validates request origins
-- **Rate Limiting**: Default 60 requests/minute
-- **HTTPS Enforcement**: Only proxies HTTPS URLs
-- **Request Timeouts**: 30-second default timeout
-- **No Logging**: No request data is logged or retained
+<CardGrid>
+  <Card title="Usage Guide" icon="pencil">
+    Learn how to use the CORS Proxy with PondPilot and other tools.
 
-## Next Steps
+    [View usage →](/cors-proxy/usage/)
+  </Card>
+  <Card title="Self-Hosting" icon="server">
+    Deploy your own CORS Proxy with Docker or Cloudflare Workers.
 
-- [Self-Hosting Guide](/cors-proxy/self-hosting/)
-- [Security Configuration](/cors-proxy/security/)
+    [Self-host →](/cors-proxy/self-hosted/)
+  </Card>
+  <Card title="Security" icon="shield">
+    Security features, SSRF protection, and configuration options.
+
+    [Learn more →](/cors-proxy/security/)
+  </Card>
+</CardGrid>

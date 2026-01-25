@@ -1,0 +1,235 @@
+---
+title: Usage Guide
+description: How to use the CORS Proxy with PondPilot and other browser-based tools.
+---
+
+The CORS Proxy provides two URL formats for accessing remote resources. This guide covers both formats, common use cases, and integration with PondPilot.
+
+## URL Formats
+
+### Query Parameter Format
+
+The standard format uses a URL-encoded query parameter:
+
+```
+https://cors-proxy.pondpilot.io/proxy?url=<encoded-url>
+```
+
+Example:
+```
+https://cors-proxy.pondpilot.io/proxy?url=https%3A%2F%2Fexample.com%2Fdata.parquet
+```
+
+### Path-Based Format
+
+For compatibility with tools that append file extensions (like DuckDB), use the path-based format:
+
+```
+https://cors-proxy.pondpilot.io/proxy-path/<protocol>/<host>/<path>
+```
+
+Example:
+```
+https://cors-proxy.pondpilot.io/proxy-path/https/bucket.s3.amazonaws.com/data/file.parquet
+```
+
+This format allows DuckDB to append extensions like `.wal` or `.idx` when accessing remote database files.
+
+## Using with PondPilot
+
+### Automatic Proxy Usage
+
+PondPilot automatically uses the CORS Proxy when loading remote files. Simply paste a remote URL in the file picker or SQL editor, and PondPilot handles the proxy routing:
+
+```sql
+-- PondPilot automatically routes through CORS Proxy
+SELECT * FROM 'https://bucket.s3.amazonaws.com/data.parquet';
+```
+
+### Manual Proxy URLs
+
+For explicit control, you can construct proxy URLs manually:
+
+```sql
+-- Query parameter format
+SELECT * FROM 'https://cors-proxy.pondpilot.io/proxy?url=https%3A%2F%2Fbucket.s3.amazonaws.com%2Fdata.parquet';
+
+-- Path-based format
+SELECT * FROM 'https://cors-proxy.pondpilot.io/proxy-path/https/bucket.s3.amazonaws.com/data.parquet';
+```
+
+### Attaching Remote DuckDB Databases
+
+The path-based format is recommended for attaching remote DuckDB databases:
+
+```sql
+-- Attach a remote DuckDB database (read-only)
+ATTACH 'https://cors-proxy.pondpilot.io/proxy-path/https/duckdb-blobs.s3.amazonaws.com/databases/stations.duckdb' AS stations (READ_ONLY);
+
+-- Query the attached database
+SELECT * FROM stations.main.stations LIMIT 10;
+```
+
+## Common Use Cases
+
+### Remote Parquet Files
+
+```sql
+-- Load Parquet from S3
+SELECT * FROM 'https://cors-proxy.pondpilot.io/proxy-path/https/bucket.s3.amazonaws.com/analytics/events.parquet';
+
+-- Load from CloudFront
+SELECT * FROM 'https://cors-proxy.pondpilot.io/proxy-path/https/d123.cloudfront.net/data.parquet';
+```
+
+### Remote CSV Files
+
+```sql
+-- Government data portal
+SELECT * FROM read_csv('https://cors-proxy.pondpilot.io/proxy?url=https%3A%2F%2Fdata.gov%2Fdatasets%2Fexample.csv');
+
+-- GitHub raw files
+SELECT * FROM read_csv('https://cors-proxy.pondpilot.io/proxy-path/https/raw.githubusercontent.com/user/repo/main/data.csv');
+```
+
+### Public Datasets
+
+Many public datasets lack CORS headers. Here are examples with real public data:
+
+```sql
+-- NYC Taxi data
+SELECT * FROM 'https://cors-proxy.pondpilot.io/proxy-path/https/d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2024-01.parquet'
+LIMIT 100;
+
+-- DuckDB sample databases
+ATTACH 'https://cors-proxy.pondpilot.io/proxy-path/https/blobs.duckdb.org/databases/stations.duckdb' AS demo (READ_ONLY);
+```
+
+## Using with Other Tools
+
+### JavaScript fetch API
+
+```javascript
+const proxyUrl = 'https://cors-proxy.pondpilot.io/proxy';
+const targetUrl = 'https://example.com/data.json';
+
+const response = await fetch(`${proxyUrl}?url=${encodeURIComponent(targetUrl)}`);
+const data = await response.json();
+```
+
+### DuckDB WASM
+
+```javascript
+import * as duckdb from '@duckdb/duckdb-wasm';
+
+const db = await duckdb.AsyncDuckDB.create();
+await db.connect();
+
+// Use path-based format for DuckDB WASM
+const result = await conn.query(`
+  SELECT * FROM 'https://cors-proxy.pondpilot.io/proxy-path/https/bucket.s3.amazonaws.com/data.parquet'
+`);
+```
+
+### curl (for testing)
+
+```bash
+# Test with curl (include Origin header)
+curl "https://cors-proxy.pondpilot.io/proxy?url=https%3A%2F%2Fexample.com%2Fdata.json" \
+  -H "Origin: https://example.com"
+
+# Path-based format
+curl "https://cors-proxy.pondpilot.io/proxy-path/https/example.com/data.json" \
+  -H "Origin: https://example.com"
+```
+
+## Supported Protocols
+
+The CORS Proxy only supports HTTPS URLs in production mode. HTTP URLs are blocked to prevent man-in-the-middle attacks.
+
+| Protocol | Supported |
+|----------|-----------|
+| `https://` | Yes |
+| `http://` | No (except localhost in dev mode) |
+| `ftp://` | No |
+| `file://` | No |
+
+## Request Methods
+
+The CORS Proxy supports read-only operations:
+
+| Method | Supported | Use Case |
+|--------|-----------|----------|
+| `GET` | Yes | Fetch data |
+| `HEAD` | Yes | Check file existence/size |
+| `OPTIONS` | Yes | CORS preflight |
+| `POST/PUT/DELETE` | No | Write operations not supported |
+
+## Range Requests
+
+The CORS Proxy supports HTTP Range headers, enabling:
+
+- **Partial downloads** - Fetch only part of a large file
+- **Random access** - DuckDB's efficient remote file access
+- **Resumable downloads** - Continue interrupted transfers
+
+```bash
+# Fetch bytes 0-1023
+curl "https://cors-proxy.pondpilot.io/proxy-path/https/example.com/large.parquet" \
+  -H "Range: bytes=0-1023" \
+  -H "Origin: https://example.com"
+```
+
+## Error Handling
+
+### Common Errors
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| 400 Bad Request | Invalid or missing URL | Check URL encoding |
+| 403 Forbidden | Domain not in allowlist | Use allowed domains or self-host |
+| 403 Forbidden | Private IP detected | SSRF protection, cannot proxy internal networks |
+| 403 Forbidden | Origin not allowed | Request from allowed origin |
+| 502 Bad Gateway | Upstream server error | Check target URL is accessible |
+| 504 Gateway Timeout | Request exceeded 30s | Target server too slow |
+
+### Testing Connectivity
+
+Check if the proxy is healthy:
+
+```bash
+curl https://cors-proxy.pondpilot.io/health
+# {"status":"ok","service":"pondpilot-cors-proxy","timestamp":"..."}
+```
+
+Get proxy configuration:
+
+```bash
+curl https://cors-proxy.pondpilot.io/info
+```
+
+## Self-Hosted Proxy URLs
+
+When using a self-hosted proxy, replace the official URL with your proxy address:
+
+```sql
+-- Using self-hosted proxy at localhost:3000
+SELECT * FROM 'http://localhost:3000/proxy-path/https/example.com/data.parquet';
+
+-- Using self-hosted proxy at custom domain
+SELECT * FROM 'https://cors.yourcompany.com/proxy-path/https/example.com/data.parquet';
+```
+
+Configure PondPilot to use your self-hosted proxy in settings.
+
+## Rate Limits
+
+The official hosted service has the following limits:
+
+| Limit | Value |
+|-------|-------|
+| Requests per minute | 60 (per IP) |
+| Maximum file size | 500 MB |
+| Request timeout | 30 seconds |
+
+For higher limits, consider [self-hosting](/cors-proxy/self-hosted/) your own proxy.

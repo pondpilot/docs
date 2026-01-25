@@ -36,11 +36,11 @@ Expand FlowScope from 1 page to complete user-facing coverage. Focus is on the w
 
 Expand CORS Proxy from 1 page to complete user-facing coverage. This is a utility service that enables PondPilot to access remote resources blocked by CORS. Simpler product, fewer pages needed. Source content from the repo at `../cors-proxy/`.
 
-- [ ] Enhance `src/content/docs/cors-proxy/overview.md` — Improve overview: clearer explanation of what CORS is, when you need the proxy, hosted service URL
-- [ ] Create `src/content/docs/cors-proxy/usage.md` — Usage guide: how to use with PondPilot, URL format, supported protocols, examples with remote Parquet files and databases
-- [ ] Create `src/content/docs/cors-proxy/self-hosted.md` — Self-hosting: Docker setup, Cloudflare Workers deployment, Node.js option, configuration options
-- [ ] Create `src/content/docs/cors-proxy/security.md` — Security model: SSRF protection, domain allowlisting, rate limiting, no-logging policy, HTTPS enforcement
-- [ ] Verify all 4 CORS Proxy pages render correctly with `yarn dev`
+- [x] Enhance `src/content/docs/cors-proxy/overview.md` — Improve overview: clearer explanation of what CORS is, when you need the proxy, hosted service URL
+- [x] Create `src/content/docs/cors-proxy/usage.md` — Usage guide: how to use with PondPilot, URL format, supported protocols, examples with remote Parquet files and databases
+- [x] Create `src/content/docs/cors-proxy/self-hosted.md` — Self-hosting: Docker setup, Cloudflare Workers deployment, Node.js option, configuration options
+- [x] Create `src/content/docs/cors-proxy/security.md` — Security model: SSRF protection, domain allowlisting, rate limiting, no-logging policy, HTTPS enforcement
+- [x] Verify all 4 CORS Proxy pages render correctly with `yarn dev`
 
 ### Task 4: Sidebar Configuration and Final Verification
 
