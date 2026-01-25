@@ -61,6 +61,11 @@ export default defineConfig({
           ],
         },
         {
+          label: 'Proxy',
+          collapsed: true,
+          autogenerate: { directory: 'proxy' },
+        },
+        {
           label: 'FlowScope',
           collapsed: true,
           autogenerate: { directory: 'flowscope' },

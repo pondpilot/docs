@@ -46,9 +46,9 @@ Expand CORS Proxy from 1 page to complete user-facing coverage. This is a utilit
 
 Update Astro/Starlight configuration to include all new documentation sections in the sidebar navigation. Verify the complete site builds and all links work correctly.
 
-- [ ] Update `astro.config.mjs` — Add Proxy section to sidebar with all 5 pages
-- [ ] Update `astro.config.mjs` — Update FlowScope section to include all 8 pages
-- [ ] Update `astro.config.mjs` — Update CORS Proxy section to include all 4 pages
-- [ ] Run `yarn build` to verify full site builds without errors
-- [ ] Run `yarn dev` and manually verify sidebar navigation for all new sections
-- [ ] Verify all internal links between docs work correctly
+- [x] Update `astro.config.mjs` — Add Proxy section to sidebar with all 5 pages
+- [x] Update `astro.config.mjs` — Update FlowScope section to include all 8 pages
+- [x] Update `astro.config.mjs` — Update CORS Proxy section to include all 4 pages
+- [x] Run `yarn build` to verify full site builds without errors
+- [x] Run `yarn dev` and manually verify sidebar navigation for all new sections
+- [x] Verify all internal links between docs work correctly
