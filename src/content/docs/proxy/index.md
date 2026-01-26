@@ -1,99 +1,122 @@
 ---
 title: PondPilot Proxy
-description: Query PostgreSQL, MySQL, and SQLite databases through DuckDB's analytics engine via HTTP API.
+description: Multi-tenant data proxy with per-user isolated DuckDB instances and Flight SQL protocol support.
 sidebar:
   order: 0
 ---
 
-PondPilot Proxy extends DuckDB with the ability to query external databases seamlessly. Run complex analytical queries across multiple database systems—all via a simple HTTP API.
+PondPilot Proxy enables clients to execute SQL queries against multiple data sources through a unified interface. Each user gets an isolated DuckDB instance running in a Docker container, with queries proxied via the Apache Arrow Flight SQL protocol.
 
 ## What is PondPilot Proxy?
 
-PondPilot Proxy is a server that sits between your applications and your databases. It uses DuckDB as a powerful query engine, letting you:
+PondPilot Proxy is a multi-tenant data proxy that provides:
 
-- Query PostgreSQL, MySQL, and SQLite from a single endpoint
-- Join data across different database systems in one query
-- Apply DuckDB's analytics functions to external databases
-- Get results in JSON, CSV, or Apache Arrow format
+- **Per-user isolation** — Each user gets their own DuckDB instance in a dedicated Docker container
+- **Flight SQL protocol** — High-performance columnar data streaming via Apache Arrow
+- **Cross-database queries** — Join data across PostgreSQL, MySQL, and SQLite in a single query
+- **AI integration** — Built-in endpoints for chat completions and embeddings
 
-## Why Use PondPilot Proxy?
-
-### Cross-Database Analytics
-
-Query multiple databases in a single SQL statement:
-
-```sql
--- Join PostgreSQL sales with MySQL customer data
-SELECT
-    c.customer_name,
-    SUM(s.revenue) as total_revenue
-FROM postgres_db.sales s
-JOIN mysql_db.customers c ON s.customer_id = c.id
-GROUP BY c.customer_name;
-```
-
-### No Data Movement
-
-Traditional approaches require ETL pipelines to move data into a central warehouse. PondPilot Proxy queries external databases directly—no data copying, no sync jobs, no stale data.
-
-### DuckDB's Analytical Power
-
-Even when querying PostgreSQL or MySQL, you get access to DuckDB's:
-
-- Window functions and CTEs
-- Advanced aggregations
-- Vectorized execution
-- Optimized query plans
-
-### Simple HTTP Interface
-
-No database drivers or connection management in your application. Send SQL over HTTP, get results back as JSON.
-
-## How It Works
+## Architecture Overview
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                        Your Application                             │
-│                              │                                      │
-│                         HTTP Request                                │
-│                              ▼                                      │
-├─────────────────────────────────────────────────────────────────────┤
-│                      PondPilot Proxy                                │
-│  ┌──────────────┐   ┌──────────────┐   ┌──────────────────────┐    │
-│  │ Auth & Rate  │ → │   DuckDB     │ → │ Connection Pooling   │    │
-│  │   Limiting   │   │   Engine     │   │                      │    │
-│  └──────────────┘   └──────────────┘   └──────────────────────┘    │
-│                              │                                      │
-│              ┌───────────────┼───────────────┐                      │
-│              ▼               ▼               ▼                      │
-│        ┌──────────┐   ┌──────────┐   ┌──────────┐                  │
-│        │PostgreSQL│   │  MySQL   │   │  SQLite  │                  │
-│        └──────────┘   └──────────┘   └──────────┘                  │
-└─────────────────────────────────────────────────────────────────────┘
+                                PondPilot Proxy
+                ┌─────────────────────────────────────────────────┐
+                │                                                 │
+   HTTP :8080   │  ┌──────────┐    ┌────────────────────────┐    │
+  ──────────────┼─▶│  Router  │───▶│  Middleware Pipeline   │    │
+                │  └──────────┘    │  - Auth (JWT)          │    │
+                │                  │  - RateLimiter         │    │
+                │                  └────────────────────────┘    │
+                │                             │                   │
+                │              ┌──────────────┴──────────────┐   │
+                │              ▼                              ▼   │
+                │     ┌──────────────┐              ┌───────────┐ │
+                │     │ AI Handlers  │              │  Health   │ │
+                │     │ /ai/chat     │              │ Endpoints │ │
+                │     │ /ai/embed    │              └───────────┘ │
+                │     └──────────────┘                            │
+                │                                                 │
+   gRPC :8081   │  ┌───────────────────────────────────────────┐ │
+  ──────────────┼─▶│           Flight SQL Server               │ │
+                │  │  (JWT Auth via gRPC Interceptors)         │ │
+                │  └───────────────────┬───────────────────────┘ │
+                │                      │                         │
+                │                      ▼                         │
+                │  ┌───────────────────────────────────────────┐ │
+                │  │           Container Manager               │ │
+                │  │  - Per-user isolation                     │ │
+                │  │  - Idle container reaping                 │ │
+                │  │  - Resource limits (CPU, memory)          │ │
+                │  └───────────────────┬───────────────────────┘ │
+                │                      │                         │
+                └──────────────────────┼─────────────────────────┘
+                                       │
+                ┌──────────────────────┼──────────────────────┐
+                │     Docker Network   │                      │
+                │                      ▼                      │
+                │  ┌─────────┐  ┌─────────┐  ┌─────────┐     │
+                │  │Container│  │Container│  │Container│ ... │
+                │  │ User A  │  │ User B  │  │ User C  │     │
+                │  │ SQLFlite│  │ SQLFlite│  │ SQLFlite│     │
+                │  │ DuckDB  │  │ DuckDB  │  │ DuckDB  │     │
+                │  └────┬────┘  └────┬────┘  └────┬────┘     │
+                │       │            │            │          │
+                └───────┼────────────┼────────────┼──────────┘
+                        │            │            │
+                        ▼            ▼            ▼
+                ┌──────────┐  ┌──────────┐  ┌──────────┐
+                │PostgreSQL│  │  MySQL   │  │  SQLite  │
+                │ Database │  │ Database │  │   Files  │
+                └──────────┘  └──────────┘  └──────────┘
 ```
 
-1. Your application sends SQL queries over HTTP
-2. PondPilot Proxy authenticates the request and applies rate limiting
-3. DuckDB parses and optimizes the query
-4. DuckDB's extensions connect to external databases
-5. Results stream back in your preferred format
+## Key Components
+
+### Dual-Port Architecture
+
+| Port | Protocol | Purpose |
+|------|----------|---------|
+| 8080 | HTTP | REST API, health checks, AI endpoints |
+| 8081 | gRPC | Flight SQL queries |
+
+### Container Isolation
+
+Each user gets a dedicated Docker container running:
+
+- **SQLFlite** — Flight SQL server backed by DuckDB
+- **DuckDB** — With extensions for PostgreSQL, MySQL, SQLite connectivity
+- **Pre-attached databases** — Configured at container startup
+
+Containers are:
+- Spawned on first request
+- Cached for subsequent requests (~10-50ms latency)
+- Automatically stopped after idle timeout (default: 5 minutes)
+
+### Security
+
+| Layer | Mechanism |
+|-------|-----------|
+| Authentication | JWT tokens (required) |
+| Process isolation | Separate container per user |
+| Network isolation | Containers on isolated Docker network |
+| Resource limits | CPU and memory limits enforced |
+| Privileges | Non-root user, capabilities dropped |
 
 ## Supported Databases
 
-| Database   | Read Support | Notes                                    |
-|------------|--------------|------------------------------------------|
-| PostgreSQL | Full         | All PostgreSQL-compatible databases      |
-| MySQL      | Full         | MySQL and MariaDB                        |
-| SQLite     | Full         | Local or remote SQLite files             |
-| DuckDB     | Full         | Native DuckDB tables and in-memory data  |
+| Database | Extension | Notes |
+|----------|-----------|-------|
+| PostgreSQL | `postgres` | Full read access with schema support |
+| MySQL | `mysql` | MySQL and MariaDB compatible |
+| SQLite | `sqlite` | Local or remote SQLite files |
+| DuckDB | native | In-memory and persistent tables |
 
 ## Use Cases
 
-- **Analytics on Production Data** - Run complex analytical queries without impacting your production databases
-- **Data Federation** - Query across microservice databases without tight coupling
-- **Business Intelligence** - Connect BI tools to multiple databases through one endpoint
-- **Data Science Notebooks** - Access production data in Jupyter/notebooks via HTTP
-- **Reporting** - Generate reports from multiple data sources with a single query
+- **PondPilot App** — Backend for the PondPilot data exploration tool
+- **Cross-database analytics** — JOIN across different database systems
+- **Data federation** — Query microservice databases without tight coupling
+- **AI-powered queries** — Natural language to SQL with integrated AI endpoints
 
 ## Quick Links
 
@@ -101,22 +124,22 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
 
 <CardGrid>
   <Card title="Getting Started" icon="rocket">
-    Install and run your first cross-database query.
+    Deploy and connect to your first database.
 
     [Get started →](/proxy/getting-started/)
   </Card>
   <Card title="Configuration" icon="setting">
-    YAML configuration, environment variables, authentication.
+    YAML configuration, environment variables, container settings.
 
     [Configure →](/proxy/configuration/)
   </Card>
   <Card title="Cross-Database Queries" icon="random">
-    Master cross-database JOINs and analytics.
+    Query multiple databases with Flight SQL.
 
     [Learn more →](/proxy/cross-database-queries/)
   </Card>
   <Card title="Deployment" icon="rocket">
-    Docker, health checks, and production setup.
+    Docker Compose, production setup, scaling.
 
     [Deploy →](/proxy/deployment/)
   </Card>

@@ -1,177 +1,273 @@
 ---
 title: Getting Started
-description: Install PondPilot Proxy and run your first cross-database query.
+description: Deploy PondPilot Proxy and connect to your first database.
 sidebar:
   order: 1
 ---
 
-Get up and running with PondPilot Proxy in a few steps. This guide covers installation, basic configuration, and your first cross-database query.
+Get PondPilot Proxy running and execute your first cross-database query. This guide covers deployment with Docker Compose and connecting via Flight SQL.
 
 ## Prerequisites
 
-- Docker (recommended) or Go 1.24+ for building from source
-- Access to at least one database (PostgreSQL, MySQL, or SQLite)
+- **Docker** with Docker Compose
+- **A database** to connect to (PostgreSQL, MySQL, or SQLite)
+- **A Flight SQL client** (PondPilot app, DuckDB with `airport` extension, or any Arrow Flight client)
 
-## Installation
+## Quick Start with Docker Compose
 
-### Option 1: Docker (Recommended)
+### 1. Create Configuration Files
 
-Pull and run the official Docker image:
+Create a `docker-compose.yml`:
 
-```bash
-docker run -p 8080:8080 \
-  -e API_KEY="your-secret-key" \
-  -e ENCRYPTION_KEY="your-32-byte-encryption-key-here!!" \
-  ghcr.io/pondpilot/proxy:latest
+```yaml
+services:
+  proxy:
+    image: ghcr.io/pondpilot/proxy:latest
+    ports:
+      - "8080:8080"  # HTTP (health, AI endpoints)
+      - "8081:8081"  # gRPC (Flight SQL)
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - CONTAINER_NETWORK=pondpilot
+      - CLAUDE_API_KEY=${CLAUDE_API_KEY}  # Optional: for AI features
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./config.yaml:/config.yaml
+    networks:
+      - pondpilot
+
+networks:
+  pondpilot:
+    driver: bridge
 ```
 
-### Option 2: Pre-built Binaries
+Create a `config.yaml`:
 
-Download the latest release for your platform:
+```yaml
+server:
+  port: 8080
+  grpc_port: 8081
+  host: "0.0.0.0"
 
-```bash
-# Linux (amd64)
-curl -L https://github.com/pondpilot/proxy/releases/latest/download/pondpilot-proxy-linux-amd64 -o pondpilot-proxy
-chmod +x pondpilot-proxy
+containers:
+  image: "ghcr.io/pondpilot/sqlflite:latest"
+  idle_timeout: 5m
+  memory_limit: "512m"
+  cpu_limit: 0.5
 
-# macOS (Apple Silicon)
-curl -L https://github.com/pondpilot/proxy/releases/latest/download/pondpilot-proxy-darwin-arm64 -o pondpilot-proxy
-chmod +x pondpilot-proxy
-
-# Run
-API_KEY="your-key" ENCRYPTION_KEY="your-encryption-key" ./pondpilot-proxy
+duckdb:
+  extensions: [arrow, postgres, mysql]
+  attached_databases:
+    - alias: "mydb"
+      type: "postgres"
+      connection_string: "${DATABASE_URL}"
 ```
 
-### Option 3: Build from Source
+### 2. Set Environment Variables
 
-Requires Go 1.24 or later:
+Create a `.env` file:
 
 ```bash
-git clone https://github.com/pondpilot/proxy.git
-cd proxy
-go build -o pondpilot-proxy cmd/server/main.go
-./pondpilot-proxy
+# Required: JWT secret (minimum 32 characters)
+JWT_SECRET="your-secret-key-at-least-32-characters-long"
+
+# Database connection
+DATABASE_URL="postgresql://user:pass@host:5432/database"
+
+# Optional: AI features
+CLAUDE_API_KEY="sk-ant-..."
 ```
 
-## Required Environment Variables
+### 3. Start the Proxy
 
-Two environment variables are required for all installations:
+```bash
+docker compose up -d
+```
 
-| Variable | Description |
-|----------|-------------|
-| `API_KEY` | Secret key for API authentication. Clients send this in the `X-API-Key` header. |
-| `ENCRYPTION_KEY` | 32-byte key for encrypting connection strings. Must be exactly 32 characters. |
+### 4. Verify Installation
 
-:::caution
-Keep these keys secure. Never commit them to version control or expose them in logs.
-:::
-
-## Verify Installation
-
-Check that the server is running:
+Check health endpoint:
 
 ```bash
 curl http://localhost:8080/health
 ```
 
-You should see:
+Expected response:
 
 ```json
 {"status":"healthy"}
 ```
 
+Check detailed health:
+
+```bash
+curl http://localhost:8080/health/detailed
+```
+
+## Authentication
+
+PondPilot Proxy requires JWT authentication. All requests must include a valid JWT token.
+
+### Getting a Demo Token
+
+For testing, request a demo token:
+
+```bash
+curl -X POST http://localhost:8080/auth/demo-token
+```
+
+Response:
+
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIs...",
+  "expires_at": "2026-01-26T12:00:00Z"
+}
+```
+
+Demo tokens have restricted rate limits and short expiration times.
+
+### Using JWT Tokens
+
+Include the token in requests:
+
+**HTTP endpoints:**
+```bash
+curl -H "Authorization: Bearer <token>" http://localhost:8080/ai/chat
+```
+
+**Flight SQL (gRPC):**
+The token is passed via gRPC metadata with key `authorization`.
+
+## Connecting with Flight SQL
+
+### Using PondPilot App
+
+PondPilot automatically connects to the proxy when configured with a remote database connection. See [Remote Sources](/pondpilot/data-connections/remote-sources/) for setup.
+
+### Using DuckDB with Airport Extension
+
+Connect from any DuckDB client using the `airport` extension:
+
+```sql
+-- Load the airport extension
+LOAD airport;
+
+-- Attach the proxy as a remote database
+ATTACH 'flight://localhost:8081?token=<your-jwt-token>' AS remote;
+
+-- Query attached databases through the proxy
+SELECT * FROM remote.mydb.public.users LIMIT 10;
+```
+
+### Using Arrow Flight Clients
+
+Any Arrow Flight SQL client can connect to port 8081. The JWT token should be passed in the `authorization` metadata field.
+
+**Python example:**
+
+```python
+from pyarrow import flight
+
+# Connect with authentication
+client = flight.connect("grpc://localhost:8081")
+options = flight.FlightCallOptions(headers=[
+    (b"authorization", b"Bearer <your-jwt-token>")
+])
+
+# Execute query
+info = client.get_flight_info(
+    flight.FlightDescriptor.for_command(b"SELECT * FROM mydb.public.users"),
+    options
+)
+reader = client.do_get(info.endpoints[0].ticket, options)
+table = reader.read_all()
+```
+
 ## Your First Query
 
-### Step 1: Create a DuckDB Instance
+Once connected, query your attached databases:
 
-PondPilot Proxy manages DuckDB instances for you. Create one:
-
-```bash
-INSTANCE_ID=$(curl -s -X POST http://localhost:8080/v1/instances \
-  -H "X-API-Key: your-secret-key" \
-  -H "Content-Type: application/json" \
-  -d '{}' | jq -r '.id')
-
-echo "Instance ID: $INSTANCE_ID"
+```sql
+-- Query a PostgreSQL table through the proxy
+SELECT
+    customer_name,
+    COUNT(*) as order_count,
+    SUM(amount) as total_revenue
+FROM mydb.public.orders
+GROUP BY customer_name
+ORDER BY total_revenue DESC
+LIMIT 10;
 ```
 
-### Step 2: Attach a Database
+The query is executed in your isolated DuckDB container, which connects to the PostgreSQL database you configured.
 
-Attach your first external database. This example uses PostgreSQL:
+## Container Lifecycle
+
+Understanding how containers work:
+
+1. **First request** — Container spawns (~2-5 seconds)
+2. **Subsequent requests** — Uses cached container (~10-50ms)
+3. **Idle timeout** — Container stops after 5 minutes of inactivity
+4. **Next request after idle** — Container respawns
+
+Each user (identified by JWT `sub` claim) gets their own isolated container.
+
+## AI Endpoints
+
+The proxy includes AI integration for chat and embeddings:
 
 ```bash
-curl -X POST http://localhost:8080/v1/instances/$INSTANCE_ID/databases \
-  -H "X-API-Key: your-secret-key" \
+# Chat completion (streaming)
+curl -X POST http://localhost:8080/ai/chat \
+  -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{
-    "type": "postgres",
-    "alias": "mydb",
-    "connectionString": "postgresql://user:pass@localhost:5432/mydb"
+    "messages": [{"role": "user", "content": "Write a SQL query to find top customers"}],
+    "model": "claude-sonnet-4-20250514"
+  }'
+
+# Embeddings
+curl -X POST http://localhost:8080/ai/embed \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "input": "customer revenue analysis",
+    "model": "text-embedding-3-small"
   }'
 ```
 
-Connection string formats:
-- **PostgreSQL**: `postgresql://user:pass@host:port/database`
-- **MySQL**: `mysql://user:pass@host:port/database`
-- **SQLite**: `/path/to/database.db`
+## Troubleshooting
 
-### Step 3: Run a Query
+### Container not starting
 
-Query your attached database:
+Check Docker socket permissions:
 
 ```bash
-curl -X POST http://localhost:8080/v1/instances/$INSTANCE_ID/query \
-  -H "X-API-Key: your-secret-key" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query": "SELECT * FROM mydb.public.users LIMIT 5"
-  }'
+ls -la /var/run/docker.sock
 ```
 
-Notice the naming convention: `{alias}.{schema}.{table}` for PostgreSQL, or `{alias}.{table}` for MySQL and SQLite.
+The proxy needs access to the Docker socket to manage containers.
 
-## Pre-Attaching Databases with Config
+### Connection refused on port 8081
 
-For production use, configure databases in a YAML file so they're attached automatically on startup:
-
-```yaml
-# config.yaml
-server:
-  port: 8080
-  host: "0.0.0.0"
-
-duckdb:
-  settings:
-    threads: 4
-    memory_limit: "2GB"
-  attached_databases:
-    - alias: "analytics"
-      type: "postgres"
-      connection_string: "${POSTGRES_URL}"
-    - alias: "customers"
-      type: "mysql"
-      connection_string: "${MYSQL_URL}"
-
-security:
-  authentication:
-    type: "api-key"
-```
-
-Run with the config file:
+Ensure the gRPC port is exposed and not blocked by firewall:
 
 ```bash
-docker run -p 8080:8080 \
-  -v $(pwd)/config.yaml:/config.yaml \
-  -e CONFIG_FILE=/config.yaml \
-  -e API_KEY="your-secret-key" \
-  -e ENCRYPTION_KEY="your-32-byte-encryption-key-here!!" \
-  -e POSTGRES_URL="postgresql://user:pass@host:5432/db" \
-  -e MYSQL_URL="mysql://user:pass@host:3306/db" \
-  ghcr.io/pondpilot/proxy:latest
+docker compose logs proxy | grep -i grpc
+```
+
+### JWT validation failed
+
+Verify your JWT secret matches and token hasn't expired:
+
+```bash
+# Decode JWT (without verification) to check claims
+echo "<token>" | cut -d'.' -f2 | base64 -d 2>/dev/null | jq
 ```
 
 ## Next Steps
 
-- [Configuration Reference](/proxy/configuration/) - All configuration options
-- [Cross-Database Queries](/proxy/cross-database-queries/) - JOINs across databases
-- [Deployment](/proxy/deployment/) - Production setup with Docker Compose
+- [Configuration Reference](/proxy/configuration/) — All configuration options
+- [Cross-Database Queries](/proxy/cross-database-queries/) — JOIN across databases
+- [Deployment](/proxy/deployment/) — Production setup

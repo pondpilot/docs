@@ -1,7 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
-import starlightBlog from 'starlight-blog';
 import react from '@astrojs/react';
 
 // https://astro.build/config
@@ -20,16 +19,6 @@ export default defineConfig({
       editLink: {
         baseUrl: 'https://github.com/pondpilot/docs/edit/main/',
       },
-      plugins: [
-        starlightBlog({
-          title: 'Blog',
-          authors: {
-            pondpilot: {
-              name: 'PondPilot Team',
-            },
-          },
-        }),
-      ],
       sidebar: [
         {
           label: 'Getting Started',

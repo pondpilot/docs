@@ -1,386 +1,393 @@
 ---
 title: Deployment
-description: Production deployment with Docker Compose, health checks, rate limiting, and audit logging.
+description: Deploy PondPilot Proxy with Docker Compose, production configuration, and scaling considerations.
 sidebar:
   order: 4
 ---
 
-This guide covers deploying PondPilot Proxy in production environments with Docker, health monitoring, and security best practices.
+This guide covers deploying PondPilot Proxy in production environments.
+
+## Architecture Requirements
+
+PondPilot Proxy requires:
+
+- **Docker** — To run user containers (SQLFlite instances)
+- **Docker socket access** — The proxy manages containers via Docker API
+- **Two ports** — HTTP (8080) and gRPC (8081)
+- **Network connectivity** — To reach configured databases
 
 ## Docker Compose Deployment
 
-A production-ready Docker Compose setup:
+### Basic Setup
 
 ```yaml
-version: '3.8'
 services:
-  pondpilot-proxy:
+  proxy:
+    image: ghcr.io/pondpilot/proxy:latest
+    ports:
+      - "8080:8080"  # HTTP
+      - "8081:8081"  # gRPC (Flight SQL)
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - CONTAINER_NETWORK=pondpilot
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./config.yaml:/config.yaml
+    networks:
+      - pondpilot
+    restart: unless-stopped
+
+networks:
+  pondpilot:
+    driver: bridge
+```
+
+### With Local Databases (Development)
+
+```yaml
+services:
+  proxy:
     image: ghcr.io/pondpilot/proxy:latest
     ports:
       - "8080:8080"
+      - "8081:8081"
     environment:
-      - CONFIG_FILE=/config/config.yaml
-      - API_KEY=${API_KEY}
-      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
-      - POSTGRES_URL=${POSTGRES_URL}
-      - MYSQL_URL=${MYSQL_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - CONTAINER_NETWORK=pondpilot
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/analytics
     volumes:
-      - ./config.yaml:/config/config.yaml:ro
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
-    deploy:
-      resources:
-        limits:
-          memory: 4G
-        reservations:
-          memory: 1G
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./config.yaml:/config.yaml
+    networks:
+      - pondpilot
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: analytics
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - pondpilot
+
+networks:
+  pondpilot:
+    driver: bridge
+
+volumes:
+  postgres_data:
 ```
 
-Create a `.env` file for secrets:
+## Environment Variables
+
+### Required
 
 ```bash
-API_KEY=your-production-api-key
-ENCRYPTION_KEY=your-32-byte-production-key!!
-POSTGRES_URL=postgresql://user:pass@postgres-host:5432/db
-MYSQL_URL=mysql://user:pass@mysql-host:3306/db
+# JWT signing secret (minimum 32 characters)
+JWT_SECRET="your-secret-key-at-least-32-characters-long"
 ```
 
-Start the service:
+### Optional
 
 ```bash
-docker-compose up -d
+# Server ports
+PORT=8080
+GRPC_PORT=8081
+
+# Container settings
+CONTAINER_IMAGE=ghcr.io/pondpilot/sqlflite:latest
+CONTAINER_IDLE_TIMEOUT=300000  # 5 minutes in ms
+CONTAINER_MEMORY_LIMIT=512m
+CONTAINER_CPU_LIMIT=0.5
+CONTAINER_NETWORK=pondpilot
+
+# AI integration
+CLAUDE_API_KEY=sk-ant-...
+OPENAI_API_KEY=sk-...
 ```
 
-## Production Configuration
+## TLS Configuration
 
-A complete production configuration file:
+### Behind a Reverse Proxy (Recommended)
 
-```yaml
-# config.yaml
-server:
-  host: "0.0.0.0"
-  port: 8080
-  read_timeout: 30s
-  write_timeout: 30s
-  shutdown_timeout: 15s
+Use nginx, Traefik, or Caddy for TLS termination:
 
-duckdb:
-  max_instances: 20
-  settings:
-    threads: 8
-    memory_limit: "4GB"
-  extensions:
-    - arrow
-    - postgres
-    - mysql
-  connection_pool:
-    min_connections: 5
-    max_connections: 20
-    idle_timeout: 10m
-    acquire_timeout: 30s
-    validate_on_acquire: true
-    validation_interval: 2m
-    max_connection_age: 1h
-  attached_databases:
-    - alias: "analytics"
-      type: "postgres"
-      connection_string: "${POSTGRES_URL}"
-    - alias: "crm"
-      type: "mysql"
-      connection_string: "${MYSQL_URL}"
-
-security:
-  authentication:
-    type: "api-key"
-    api_key_header: "X-API-Key"
-  encryption:
-    algorithm: "AES-256-GCM"
-    key_derivation: "pbkdf2"
-  rate_limit:
-    requests_per_minute: 100
-    burst_size: 20
-  read_only: true
-
-environment: "production"
-```
-
-## Health Checks
-
-PondPilot Proxy exposes health check endpoints for container orchestration:
-
-### Liveness Probe
-
-Check if the service is running:
-
-```bash
-curl http://localhost:8080/health
-```
-
-Response:
-
-```json
-{"status": "healthy"}
-```
-
-### Readiness Probe
-
-Check if the service is ready to accept requests:
-
-```bash
-curl http://localhost:8080/ready
-```
-
-Response when ready:
-
-```json
-{"status": "ready", "databases": 2}
-```
-
-Response when not ready (database connection issues):
-
-```json
-{"status": "not_ready", "error": "database connection failed"}
-```
-
-### Kubernetes Configuration
-
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: pondpilot-proxy
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-        - name: pondpilot-proxy
-          image: ghcr.io/pondpilot/proxy:latest
-          ports:
-            - containerPort: 8080
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: 8080
-            initialDelaySeconds: 10
-            periodSeconds: 30
-          readinessProbe:
-            httpGet:
-              path: /ready
-              port: 8080
-            initialDelaySeconds: 5
-            periodSeconds: 10
-          resources:
-            limits:
-              memory: "4Gi"
-              cpu: "2"
-            requests:
-              memory: "1Gi"
-              cpu: "500m"
-```
-
-## Rate Limiting
-
-Protect your proxy from abuse and ensure fair resource usage:
-
-```yaml
-security:
-  rate_limit:
-    requests_per_minute: 100   # Base rate per client
-    burst_size: 20             # Allowed burst above limit
-```
-
-Rate limiting is applied per client IP address. When a client exceeds the limit:
-
-- HTTP 429 (Too Many Requests) is returned
-- A `Retry-After` header indicates when to retry
-- Requests are logged for monitoring
-
-### Rate Limit Recommendations
-
-| Use Case | Requests/Min | Burst |
-|----------|--------------|-------|
-| Internal analytics | 200 | 50 |
-| External API | 60 | 10 |
-| Public access | 30 | 5 |
-
-## Audit Logging
-
-PondPilot Proxy logs all API requests for security auditing:
-
-```json
-{
-  "timestamp": "2024-01-15T10:30:00Z",
-  "level": "info",
-  "message": "query executed",
-  "request_id": "abc123",
-  "client_ip": "192.168.1.100",
-  "instance_id": "inst_xyz",
-  "query_type": "SELECT",
-  "duration_ms": 45,
-  "rows_returned": 150
-}
-```
-
-Logs include:
-- Request ID for tracing
-- Client IP address
-- Instance and database accessed
-- Query type (SELECT, etc.)
-- Execution duration
-- Result size
-
-:::note
-Query text is not logged by default to protect sensitive data in WHERE clauses.
-:::
-
-### Log Aggregation
-
-Ship logs to your preferred log aggregator:
-
-```yaml
-# docker-compose.yaml with logging
-services:
-  pondpilot-proxy:
-    image: ghcr.io/pondpilot/proxy:latest
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "100m"
-        max-file: "5"
-```
-
-For production, consider using a logging driver for your observability stack (Loki, Elasticsearch, etc.).
-
-## TLS/HTTPS
-
-PondPilot Proxy serves HTTP. For HTTPS, deploy behind a reverse proxy:
-
-### Nginx Configuration
+**nginx example:**
 
 ```nginx
 server {
-    listen 443 ssl;
-    server_name api.example.com;
+    listen 443 ssl http2;
+    server_name proxy.example.com;
 
-    ssl_certificate /etc/ssl/certs/api.example.com.crt;
-    ssl_certificate_key /etc/ssl/private/api.example.com.key;
+    ssl_certificate /etc/ssl/certs/proxy.crt;
+    ssl_certificate_key /etc/ssl/private/proxy.key;
 
+    # HTTP endpoints
     location / {
-        proxy_pass http://pondpilot-proxy:8080;
+        proxy_pass http://localhost:8080;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 }
-```
 
-### Caddy Configuration
+# gRPC requires separate server block
+server {
+    listen 443 ssl http2;
+    server_name grpc.proxy.example.com;
 
-```
-api.example.com {
-    reverse_proxy pondpilot-proxy:8080
+    ssl_certificate /etc/ssl/certs/proxy.crt;
+    ssl_certificate_key /etc/ssl/private/proxy.key;
+
+    location / {
+        grpc_pass grpc://localhost:8081;
+    }
 }
 ```
 
-## Scaling
+### With Caddy (Automatic TLS)
 
-### Horizontal Scaling
+```
+proxy.example.com {
+    reverse_proxy localhost:8080
+}
 
-PondPilot Proxy is stateless and can be scaled horizontally:
-
-```yaml
-# docker-compose.yaml
-services:
-  pondpilot-proxy:
-    image: ghcr.io/pondpilot/proxy:latest
-    deploy:
-      replicas: 3
+grpc.proxy.example.com {
+    reverse_proxy localhost:8081 {
+        transport http {
+            versions h2c
+        }
+    }
+}
 ```
 
-With a load balancer:
+## Health Checks
+
+Configure health checks for orchestrators:
 
 ```yaml
 services:
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - pondpilot-proxy
-
-  pondpilot-proxy:
+  proxy:
     image: ghcr.io/pondpilot/proxy:latest
-    deploy:
-      replicas: 3
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 ```
 
-### Resource Sizing
+### Available Endpoints
 
-| Workload | Memory | CPU | Max Instances |
-|----------|--------|-----|---------------|
-| Light (< 10 concurrent) | 2GB | 2 cores | 10 |
-| Medium (10-50 concurrent) | 4GB | 4 cores | 20 |
-| Heavy (50+ concurrent) | 8GB+ | 8+ cores | 50+ |
+| Endpoint | Purpose | Response |
+|----------|---------|----------|
+| `GET /health` | Basic health | `{"status":"healthy"}` |
+| `GET /ready` | Readiness probe | `{"ready":true}` |
+| `GET /health/detailed` | Component status | Detailed JSON |
 
-Adjust `duckdb.settings.memory_limit` based on available memory and expected concurrent instances.
+## Resource Planning
 
-## Security Best Practices
+### Memory Requirements
 
-### Network Security
+| Component | Memory |
+|-----------|--------|
+| Proxy service | ~100MB |
+| Per user container | 512MB (configurable) |
+| 10 concurrent users | ~5.1GB total |
+| 50 concurrent users | ~25.5GB total |
 
-- Deploy in a private network
-- Restrict database access to proxy servers only
-- Use TLS for all connections
+### CPU Requirements
+
+| Load | Recommended |
+|------|-------------|
+| Light (< 10 users) | 2 cores |
+| Medium (10-50 users) | 4 cores |
+| Heavy (50+ users) | 8+ cores |
+
+### Container Limits
+
+Configure based on query complexity:
+
+```yaml
+containers:
+  memory_limit: "512m"   # Light queries
+  memory_limit: "1g"     # Medium queries
+  memory_limit: "2g"     # Heavy analytics
+  cpu_limit: 0.5         # Light
+  cpu_limit: 1.0         # Medium
+  cpu_limit: 2.0         # Heavy
+```
+
+## Scaling Considerations
+
+### Single Host Limits
+
+The current architecture runs containers on a single Docker host:
+
+- Limited by host resources
+- Maximum ~100 concurrent containers (configurable)
+- Suitable for small-to-medium deployments
+
+### Horizontal Scaling (Future)
+
+The `Orchestrator` interface supports alternative backends:
+
+- Kubernetes pods
+- Fly.io machines
+- AWS Fargate tasks
+
+Contact us for enterprise scaling solutions.
+
+## Monitoring
+
+### Logs
+
+View proxy logs:
+
+```bash
+docker compose logs -f proxy
+```
+
+Key log patterns:
+
+```
+level=info msg="Container spawned" user_id=abc123 container_id=def456
+level=info msg="Container stopped" user_id=abc123 reason=idle_timeout
+level=warn msg="Rate limit exceeded" user_id=abc123
+level=error msg="Container spawn failed" user_id=abc123 error="..."
+```
+
+### Metrics
+
+The proxy exposes basic metrics at `/health/detailed`:
+
+```json
+{
+  "status": "healthy",
+  "containers": {
+    "active": 5,
+    "total_spawned": 127,
+    "total_stopped": 122
+  },
+  "uptime_seconds": 86400
+}
+```
+
+## Security Hardening
+
+### Docker Socket
+
+The proxy requires Docker socket access. Mitigate risks:
+
+1. **Run proxy as non-root** where possible
+2. **Use Docker socket proxy** like [Tecnativa/docker-socket-proxy](https://github.com/Tecnativa/docker-socket-proxy)
+3. **Limit container capabilities** (already enforced by proxy)
+
+### Network Isolation
+
+User containers should only access:
+- Configured databases
+- The proxy (for gRPC communication)
+
+```yaml
+networks:
+  pondpilot:
+    driver: bridge
+    internal: false  # Needs external access for databases
+```
+
+For stricter isolation, use network policies or separate networks per security tier.
 
 ### Secrets Management
 
-- Never commit secrets to version control
-- Use environment variables or secrets managers
-- Rotate API keys and encryption keys regularly
+Never commit secrets. Use:
+- Environment variables from `.env` files
+- Docker secrets
+- Vault or similar secret management
 
-### Database Access
+```yaml
+services:
+  proxy:
+    environment:
+      - JWT_SECRET=${JWT_SECRET}  # From .env
+    secrets:
+      - jwt_secret  # Or Docker secrets
 
-- Use read-only database users
-- Grant minimal permissions (SELECT only)
-- Use separate credentials per environment
-
-### Monitoring
-
-- Alert on authentication failures
-- Monitor rate limit triggers
-- Track query patterns for anomalies
-
-## Monitoring with Metrics
-
-Access server metrics at the metrics endpoint:
-
-```bash
-curl http://localhost:8080/api/v1/metrics
+secrets:
+  jwt_secret:
+    external: true
 ```
-
-Metrics include:
-- Request counts and latencies
-- Active instances and connections
-- Error rates
-- Memory usage
-
-Integrate with Prometheus by scraping the metrics endpoint.
 
 ## Backup and Recovery
 
-PondPilot Proxy is stateless—it doesn't store data locally. Recovery involves:
+### Stateless Design
 
-1. Redeploying the container
-2. Ensuring source databases are accessible
-3. Verifying configuration
+The proxy is stateless:
+- No persistent data in the proxy itself
+- User containers are ephemeral
+- Database connections are configured via config
 
-Pre-attached databases are reconnected automatically on startup.
+### What to Back Up
+
+1. **config.yaml** — Your configuration
+2. **Environment variables** — Secrets and connection strings
+3. **Source databases** — Your actual data
+
+### Recovery
+
+1. Deploy fresh proxy instance
+2. Apply configuration
+3. Users reconnect automatically
+
+## Troubleshooting
+
+### Container spawn failures
+
+```bash
+# Check Docker socket
+ls -la /var/run/docker.sock
+
+# Check proxy logs
+docker compose logs proxy | grep -i "spawn"
+
+# Check Docker daemon
+docker info
+```
+
+### gRPC connection issues
+
+```bash
+# Test gRPC port
+nc -zv localhost 8081
+
+# Check if gRPC server started
+docker compose logs proxy | grep -i "grpc"
+```
+
+### Database connection failures
+
+```bash
+# Test from host
+psql "${DATABASE_URL}"
+
+# Test from container network
+docker run --rm --network pondpilot postgres:16 \
+  psql "${DATABASE_URL}" -c "SELECT 1"
+```
+
+### Memory issues
+
+If containers are being killed:
+
+```bash
+# Check container stats
+docker stats
+
+# Increase memory limit in config
+containers:
+  memory_limit: "1g"
+```
