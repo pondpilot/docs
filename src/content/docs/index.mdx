@@ -59,36 +59,12 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
 
     [Learn more →](/widget/getting-started/)
   </Card>
-  <Card title="Proxy" icon="server">
+  <Card title="Proxy" icon="setting">
     Multi-tenant data proxy with per-user isolated DuckDB instances. Query PostgreSQL, MySQL, and SQLite via Flight SQL.
 
     [Learn more →](/proxy/getting-started/)
   </Card>
 </CardGrid>
-
-## Start
-
-Get started in seconds - just open PondPilot and run your first query:
-
-```sql
--- Load a CSV file directly from URL
-SELECT * FROM 'https://example.com/data.csv' LIMIT 10;
-
--- Or analyze local files by dragging them into the app
-SELECT column_name, COUNT(*) as count
-FROM my_data.parquet
-GROUP BY column_name
-ORDER BY count DESC;
-```
-
-<div class="cta-section">
-  <a href="https://app.pondpilot.io" class="cta-button primary">
-    Launch PondPilot
-  </a>
-  <a href="/pondpilot/getting-started/" class="cta-button secondary">
-    Read the Docs
-  </a>
-</div>
 
 <style>
 {`
@@ -138,47 +114,6 @@ ORDER BY count DESC;
     font-size: 0.9rem;
     line-height: 1.5;
     margin: 0;
-  }
-
-  .cta-section {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    margin: 2.5rem 0;
-    flex-wrap: wrap;
-  }
-
-  .cta-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.875rem 2rem;
-    border-radius: 9999px;
-    font-weight: 600;
-    font-size: 1rem;
-    text-decoration: none;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .cta-button.primary {
-    background: var(--sl-color-accent);
-    color: var(--sl-color-black);
-  }
-
-  .cta-button.primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(76, 97, 255, 0.4);
-  }
-
-  .cta-button.secondary {
-    background: transparent;
-    color: var(--sl-color-white);
-    border: 1px solid var(--sl-color-gray-4);
-  }
-
-  .cta-button.secondary:hover {
-    border-color: var(--sl-color-accent);
-    background: var(--sl-color-accent-low);
   }
 `}
 </style>
