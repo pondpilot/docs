@@ -25,16 +25,14 @@ The Schema Browser automatically detects and visualizes foreign key relationship
 -   **Edges**: Lines connect related columns (Foreign Keys).
 -   **Highlighting**: Click on a table or relationship line to highlight the connected elements and dim the rest of the graph.
 
-## Controls
-
-### Layout
+## Layout
 
 Toggle between different layout orientations to best fit your screen or schema structure:
 
 -   **Vertical Layout (TB)**: Arranges tables from top to bottom.
 -   **Horizontal Layout (LR)**: Arranges tables from left to right.
 
-### Navigation
+## Navigation
 
 -   **Zoom**: Use the mouse wheel or trackpad to zoom in and out.
 -   **Pan**: Click and drag on the background to move around the graph.

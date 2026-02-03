@@ -9,6 +9,8 @@ PondPilot's data comparison feature helps you find differences between tables, q
 
 ## Starting a Comparison
 
+There are two ways to start a data comparison.
+
 ### Method 1: From Data Explorer
 
 1. Right-click a table in the Data Explorer
@@ -27,6 +29,8 @@ PondPilot's data comparison feature helps you find differences between tables, q
 <!-- Screenshot placeholder -->
 
 ## Comparison Types
+
+PondPilot supports comparing different data source combinations.
 
 ### Table vs Table
 
@@ -68,6 +72,8 @@ Source B: remote_db.users
 ```
 
 ## Configuration Options
+
+Customize how comparisons are performed.
 
 ### Join Keys
 
@@ -198,6 +204,8 @@ Best for **quick validation** of large datasets.
 
 ## Understanding Results
 
+After a comparison completes, you'll see detailed results.
+
 ### Summary Statistics
 
 <!-- TODO: Add screenshot of comparison results -->
@@ -270,6 +278,8 @@ Results persist across sessions until manually cleared.
 
 ## Comparison Workflow
 
+Follow this workflow for effective data comparisons.
+
 ### Step-by-Step
 
 1. **Select Sources**
@@ -303,6 +313,8 @@ Results persist across sessions until manually cleared.
 
 ## Tips & Best Practices
 
+Optimize your comparisons with these recommendations.
+
 ### Performance
 
 - **Index your join keys** - Faster matching
@@ -323,25 +335,27 @@ Results persist across sessions until manually cleared.
 
 ## Troubleshooting
 
-### "No matching rows found"
+Common issues and how to resolve them.
+
+#### "No matching rows found"
 
 - Verify join keys are correct
 - Check for data type mismatches
 - Ensure keys exist in both sources
 
-### "Out of memory"
+#### "Out of memory"
 
 - Switch to Hash-Bucket algorithm
 - Apply filters to reduce dataset size
 - Compare in smaller batches
 
-### "Comparison taking too long"
+#### "Comparison taking too long"
 
 - Use Sampling for quick estimate
 - Add filters to reduce scope
 - Check if join keys are indexed
 
-### "Unexpected differences"
+#### "Unexpected differences"
 
 - Check column mappings are correct
 - Verify compare mode (Strict vs Coerce)

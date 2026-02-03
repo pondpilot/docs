@@ -9,6 +9,8 @@ PondPilot's AI assistant helps you write SQL using natural language, fix errors,
 
 ## Getting Started
 
+Follow these steps to configure and start using the AI assistant.
+
 ### Setting Up
 
 1. Open **Settings** (gear icon or **Ctrl+K** → Settings)
@@ -29,6 +31,8 @@ PondPilot's AI assistant helps you write SQL using natural language, fix errors,
 <!-- Screenshot placeholder -->
 
 ## Supported Providers
+
+PondPilot works with multiple AI providers. Choose the one that best fits your needs.
 
 ### OpenAI
 
@@ -59,6 +63,8 @@ Use any OpenAI-compatible API:
 5. Specify the model name
 
 ## Using the Assistant
+
+Here's how to interact with the AI assistant for different tasks.
 
 ### Natural Language to SQL
 
@@ -123,6 +129,8 @@ The AI analyzes your query and suggests:
 
 ## AI Capabilities
 
+The AI assistant can help with various SQL-related tasks.
+
 ### What the AI Can Do
 
 | Task | Example Prompt |
@@ -157,6 +165,8 @@ After the AI responds:
 
 ## Privacy & Security
 
+Your data stays private. Here's how the AI assistant handles information.
+
 ### What Data Is Sent
 
 The AI assistant sends **only**:
@@ -181,6 +191,8 @@ Your API key is:
 - Used only for direct API calls to your chosen provider
 
 ## Advanced Features
+
+Power users can take advantage of these additional capabilities.
 
 ### Reasoning Models
 
@@ -209,6 +221,8 @@ The AI automatically understands:
 
 ## Tips for Better Results
 
+Get more accurate responses by following these best practices.
+
 ### Be Specific
 
 ❌ "Write a query for sales"
@@ -236,6 +250,8 @@ If the first result isn't perfect:
 3. Provide feedback on what's wrong
 
 ## Troubleshooting
+
+Common issues and how to resolve them.
 
 ### "API Key Invalid"
 
