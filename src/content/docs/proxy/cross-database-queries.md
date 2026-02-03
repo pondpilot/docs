@@ -62,7 +62,7 @@ DuckDB handles the federation—pulling data from each source and joining in mem
 
 ## Query Examples
 
-### Cohort Analysis Across Databases
+#### Cohort Analysis Across Databases
 
 Combine customer data from MySQL with order data from PostgreSQL:
 
@@ -200,7 +200,7 @@ USING SUM(revenue);
 
 ## Performance Considerations
 
-### Predicate Pushdown
+#### Predicate Pushdown
 
 DuckDB pushes filters to source databases when possible:
 
@@ -248,7 +248,7 @@ Each container has a memory limit (default 512MB). For large queries:
 
 ## Connecting via Flight SQL
 
-### PondPilot App
+#### PondPilot App
 
 The PondPilot app connects automatically. Configure your proxy URL in settings.
 
@@ -300,7 +300,7 @@ df = reader.read_pandas()
 
 ## Troubleshooting
 
-### "Table not found"
+#### "Table not found"
 
 Check the table naming convention:
 - PostgreSQL: `alias.schema.table` (schema is usually `public`)

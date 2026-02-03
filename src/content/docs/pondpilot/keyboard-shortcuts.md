@@ -9,7 +9,7 @@ Learn the keyboard shortcuts to navigate PondPilot efficiently. All shortcuts wo
 
 ## Quick Reference
 
-### Global Shortcuts
+#### Global Shortcuts
 
 | Action | Windows/Linux | Mac |
 |--------|---------------|-----|
@@ -73,7 +73,7 @@ The Spotlight menu (**Ctrl+K**) is your command center. Type to search for:
 
 ## Editor Execution
 
-### Run Entire Script
+#### Run Entire Script
 
 **Ctrl+Enter** / **⌘+Enter**
 
@@ -105,7 +105,7 @@ This is useful for:
 
 ## AI Assistant
 
-### Open AI Assistant
+#### Open AI Assistant
 
 **Ctrl+I** / **⌘+I**
 
@@ -118,7 +118,7 @@ When the assistant is open:
 
 ## File Operations
 
-### Add Local File
+#### Add Local File
 
 **Ctrl+F** / **⌘+F**
 
@@ -142,7 +142,7 @@ Opens file picker to import `.sql` script files. Each file opens as a new tab.
 
 ## Tab Management
 
-### Switch Tabs
+#### Switch Tabs
 
 - **Ctrl+Tab** - Move to next tab
 - **Ctrl+Shift+Tab** - Move to previous tab
@@ -196,7 +196,7 @@ Use **Ctrl+K** → type "keyboard" → select "Keyboard Shortcuts Help" to see a
 
 ## Tips
 
-### Learn Progressively
+#### Learn Progressively
 
 Start with these essential shortcuts:
 

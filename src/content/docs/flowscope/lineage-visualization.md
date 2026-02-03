@@ -20,7 +20,7 @@ The lineage graph shows data flow from left to right:
 
 FlowScope offers multiple view modes for different analysis needs:
 
-### Table-Level View
+#### Table-Level View
 
 Shows relationships between tables without column details. Best for:
 
@@ -53,7 +53,7 @@ Groups lineage by SQL statement or file. Best for:
 
 ## Node Types
 
-### Table Nodes
+#### Table Nodes
 
 Represent database tables:
 
@@ -121,7 +121,7 @@ FlowScope assigns confidence levels to lineage:
 
 ## Navigation Controls
 
-### Zoom and Pan
+#### Zoom and Pan
 
 - **Mouse wheel** - Zoom in/out
 - **Click and drag** - Pan the canvas

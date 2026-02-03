@@ -9,7 +9,7 @@ PondPilot's SQL editor is built for productivity with syntax highlighting, intel
 
 ## Editor Features
 
-### Syntax Highlighting
+#### Syntax Highlighting
 
 The editor provides full SQL syntax highlighting powered by CodeMirror:
 
@@ -49,7 +49,7 @@ Hover over any DuckDB function to see:
 
 ## Executing Queries
 
-### Run Entire Script
+#### Run Entire Script
 
 Press **Ctrl+Enter** (or **⌘+Enter** on Mac) to execute all statements in your script.
 
@@ -84,7 +84,7 @@ After running a query:
 
 ## Query Results
 
-### Results Table
+#### Results Table
 
 Results display in an interactive table:
 
@@ -113,7 +113,7 @@ name (VARCHAR) | age (INTEGER) | created_at (TIMESTAMP)
 
 ## Editor Customization
 
-### Font Settings
+#### Font Settings
 
 Customize the editor font in **Settings → Appearance**:
 
@@ -134,7 +134,7 @@ When enabled, your SQL is automatically formatted before execution.
 
 ## Script Management
 
-### Creating Scripts
+#### Creating Scripts
 
 Create new scripts using:
 
@@ -172,7 +172,7 @@ Export all your scripts as a ZIP archive:
 
 ## Working with Tabs
 
-### Tab Management
+#### Tab Management
 
 - **Multiple tabs** - Work on multiple scripts simultaneously
 - **Reorder** - Drag tabs to rearrange
@@ -189,7 +189,7 @@ Export all your scripts as a ZIP archive:
 
 ## Error Handling
 
-### Syntax Errors
+#### Syntax Errors
 
 Errors are highlighted with:
 

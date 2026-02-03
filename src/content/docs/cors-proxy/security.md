@@ -203,7 +203,7 @@ This is enforced at the code level, not just policy.
 
 ## Threat Model
 
-### Protected Against
+#### Protected Against
 
 | Threat | Mitigation |
 |--------|------------|
@@ -240,7 +240,7 @@ Before deploying to production, verify:
 
 ## Testing Security
 
-### Test SSRF Protection
+#### Test SSRF Protection
 
 ```bash
 # Should return 403

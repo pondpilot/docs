@@ -33,7 +33,7 @@ echo "SELECT * FROM orders" | flowscope
 
 ## Options
 
-### Dialect Selection
+#### Dialect Selection
 
 ```bash
 -d, --dialect <DIALECT>

@@ -27,7 +27,7 @@ FlowScope supports 13 SQL dialects with varying levels of syntax coverage. Selec
 
 ## Selecting a Dialect
 
-### Web App
+#### Web App
 
 Use the dialect dropdown in the editor toolbar. The default is `generic` which handles most standard SQL.
 
@@ -53,7 +53,7 @@ const result = await analyzeSql({
 
 ## Dialect-Specific Syntax
 
-### PostgreSQL
+#### PostgreSQL
 
 ```sql
 -- Array syntax
@@ -176,7 +176,7 @@ FlowScope normalizes identifiers internally for lineage tracking.
 
 FlowScope recognizes dialect-specific functions:
 
-### Aggregations
+#### Aggregations
 
 | Function | Dialects |
 |----------|----------|

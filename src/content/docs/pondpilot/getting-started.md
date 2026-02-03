@@ -18,7 +18,7 @@ For the best experience, use **Chrome** or **Edge** which support persistent fil
 
 ## Loading Your First Data
 
-### From Local Files
+#### From Local Files
 
 1. Press **Ctrl+F** (or **⌘+F** on Mac) to open the file picker
 2. Select one or more files (CSV, Parquet, JSON, Excel, or DuckDB)

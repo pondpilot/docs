@@ -18,7 +18,7 @@ PondPilot Proxy requires:
 
 ## Docker Compose Deployment
 
-### Basic Setup
+#### Basic Setup
 
 ```yaml
 services:
@@ -83,7 +83,7 @@ volumes:
 
 ## Environment Variables
 
-### Required
+#### Required
 
 ```bash
 # JWT signing secret (minimum 32 characters)
@@ -111,7 +111,7 @@ OPENAI_API_KEY=sk-...
 
 ## TLS Configuration
 
-### Behind a Reverse Proxy (Recommended)
+#### Behind a Reverse Proxy (Recommended)
 
 Use nginx, Traefik, or Caddy for TLS termination:
 
@@ -244,7 +244,7 @@ Contact us for enterprise scaling solutions.
 
 ## Monitoring
 
-### Logs
+#### Logs
 
 View proxy logs:
 
@@ -279,7 +279,7 @@ The proxy exposes basic metrics at `/health/detailed`:
 
 ## Security Hardening
 
-### Docker Socket
+#### Docker Socket
 
 The proxy requires Docker socket access. Mitigate risks:
 
@@ -324,7 +324,7 @@ secrets:
 
 ## Backup and Recovery
 
-### Stateless Design
+#### Stateless Design
 
 The proxy is stateless:
 - No persistent data in the proxy itself
@@ -345,7 +345,7 @@ The proxy is stateless:
 
 ## Troubleshooting
 
-### Container spawn failures
+#### Container spawn failures
 
 ```bash
 # Check Docker socket

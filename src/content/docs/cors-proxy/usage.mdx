@@ -9,7 +9,7 @@ The CORS Proxy provides two URL formats for accessing remote resources. This gui
 
 ## URL Formats
 
-### Query Parameter Format
+#### Query Parameter Format
 
 The standard format uses a URL-encoded query parameter:
 
@@ -39,7 +39,7 @@ This format allows DuckDB to append extensions like `.wal` or `.idx` when access
 
 ## Using with PondPilot
 
-### Automatic Proxy Usage
+#### Automatic Proxy Usage
 
 PondPilot automatically uses the CORS Proxy when loading remote files. Simply paste a remote URL in the file picker or SQL editor, and PondPilot handles the proxy routing:
 
@@ -74,7 +74,7 @@ SELECT * FROM stations.main.stations LIMIT 10;
 
 ## Common Use Cases
 
-### Remote Parquet Files
+#### Remote Parquet Files
 
 ```sql
 -- Load Parquet from S3
@@ -184,7 +184,7 @@ curl "https://cors-proxy.pondpilot.io/proxy-path/https/example.com/large.parquet
 
 ## Error Handling
 
-### Common Errors
+#### Common Errors
 
 | Error | Cause | Solution |
 |-------|-------|----------|

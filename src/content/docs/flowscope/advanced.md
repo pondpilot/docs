@@ -132,7 +132,7 @@ flowscope --template dbt \
 
 FlowScope tracks lineage through all subquery types.
 
-### Scalar Subqueries
+#### Scalar Subqueries
 
 ```sql
 SELECT
@@ -176,7 +176,7 @@ FlowScope shows the filter relationship between `orders` and `customers`.
 
 ## Complex Transformations
 
-### Window Functions
+#### Window Functions
 
 ```sql
 SELECT
@@ -227,7 +227,7 @@ Both `preferred_name` and `first_name` contribute to `display_name`.
 
 ## Set Operations
 
-### UNION, INTERSECT, EXCEPT
+#### UNION, INTERSECT, EXCEPT
 
 ```sql
 SELECT id, name FROM customers

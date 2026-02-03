@@ -15,7 +15,7 @@ Get PondPilot Proxy running and execute your first cross-database query. This gu
 
 ## Quick Start with Docker Compose
 
-### 1. Create Configuration Files
+#### 1. Create Configuration Files
 
 Create a `docker-compose.yml`:
 
@@ -141,7 +141,7 @@ The token is passed via gRPC metadata with key `authorization`.
 
 ## Connecting with Flight SQL
 
-### Using PondPilot App
+#### Using PondPilot App
 
 PondPilot automatically connects to the proxy when configured with a remote database connection. See [Remote Sources](/pondpilot/data-connections/remote-sources/) for setup.
 

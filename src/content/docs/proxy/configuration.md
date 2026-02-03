@@ -63,7 +63,7 @@ ai:
 
 ## Environment Variables
 
-### Required Variables
+#### Required Variables
 
 | Variable | Description |
 |----------|-------------|
@@ -272,7 +272,7 @@ Set longer idle timeouts for frequently-used systems to avoid respawn latency.
 
 ## Example Configurations
 
-### Development
+#### Development
 
 ```yaml
 server:

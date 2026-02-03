@@ -19,7 +19,7 @@ PondPilot allows you to analyze files stored on your local machine without uploa
 
 ## Adding Files
 
-### Drag and Drop
+#### Drag and Drop
 Simply drag files from your computer into the PondPilot window. They will appear in the **Data Explorer** sidebar.
 
 ### File Picker

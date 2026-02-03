@@ -21,7 +21,7 @@ After running a query, export your results:
 
 ## Export Formats
 
-### CSV
+#### CSV
 
 Comma-separated values for spreadsheet compatibility.
 

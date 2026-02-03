@@ -9,7 +9,7 @@ The widget exposes a global `window.PondPilot` object for advanced control.
 
 ## Global Methods
 
-### `PondPilot.init(target?, options?)`
+#### `PondPilot.init(target?, options?)`
 
 Initializes widgets on the page.
 

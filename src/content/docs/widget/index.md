@@ -25,7 +25,7 @@ See the widget in action at [widget.pondpilot.io](https://widget.pondpilot.io).
 
 ## Installation
 
-### CDN (Recommended)
+#### CDN (Recommended)
 
 The easiest way to get started is via a CDN. Add this script tag to your page:
 

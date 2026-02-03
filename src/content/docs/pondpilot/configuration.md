@@ -9,7 +9,7 @@ PondPilot offers several configuration options to customize your experience. Set
 
 ## General Settings
 
-### Appearance
+#### Appearance
 
 - **Theme**: Toggle between Light, Dark, or System Sync modes.
 - **Editor Font**: Adjust the font size and weight for the SQL editor.
