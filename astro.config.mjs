@@ -17,7 +17,7 @@ export default defineConfig({
         { icon: 'github', label: 'GitHub', href: 'https://github.com/pondpilot' },
       ],
       editLink: {
-        baseUrl: 'https://github.com/pondpilot/docs/edit/main/',
+        baseUrl: 'https://github.com/pondpilot/docs/edit/master/',
       },
       sidebar: [
         {
