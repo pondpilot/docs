@@ -190,13 +190,24 @@ pre {
   border-radius: var(--pp-radius-lg) !important;
 }
 
-.expressive-code pre {
+.expressive-code .frame {
   border-radius: var(--pp-radius-lg) !important;
 }
 
-.expressive-code .frame {
+/* Hide terminal header dots for non-terminal code blocks */
+.expressive-code .frame:not(.is-terminal) .header {
+  display: none !important;
+}
+
+/* Terminal frames keep their header but fix radius */
+.expressive-code .frame.is-terminal pre,
+.expressive-code .frame.is-terminal .code {
+  border-radius: 0 !important;
+}
+
+/* Non-terminal code blocks get full radius */
+.expressive-code .frame:not(.is-terminal) pre {
   border-radius: var(--pp-radius-lg) !important;
-  overflow: hidden;
 }
 
 /* Blockquotes with modern styling */
