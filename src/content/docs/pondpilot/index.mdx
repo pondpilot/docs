@@ -16,44 +16,44 @@ PondPilot is a powerful data analytics platform powered by DuckDB-WASM. Analyze 
 
 ## Quick Links
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
 <CardGrid>
-  <Card title="Getting Started" icon="rocket">
-    Learn the basics and start exploring data in minutes.
-
-    [Read guide →](/pondpilot/getting-started/)
-  </Card>
-  <Card title="Data Sources" icon="document">
-    Connect to files, databases, and remote sources.
-
-    [Learn more →](/pondpilot/data-connections/local-files/)
-  </Card>
-  <Card title="SQL Editor" icon="pencil">
-    Write and execute SQL with syntax highlighting and autocomplete.
-
-    [Learn more →](/pondpilot/exploration/sql-editor/)
-  </Card>
-  <Card title="AI Assistant" icon="star">
-    Get AI-powered help writing and optimizing SQL queries.
-
-    [Learn more →](/pondpilot/exploration/ai-assistant/)
-  </Card>
-  <Card title="Data Comparison" icon="random">
-    Compare datasets with powerful diff algorithms.
-
-    [Learn more →](/pondpilot/advanced/data-comparison/)
-  </Card>
-  <Card title="Schema Browser" icon="puzzle">
-    Visualize tables and relationships in an interactive graph.
-
-    [Learn more →](/pondpilot/exploration/schema-browser/)
-  </Card>
-  <Card title="Keyboard Shortcuts" icon="list-format">
-    Master PondPilot with keyboard shortcuts.
-
-    [View shortcuts →](/pondpilot/keyboard-shortcuts/)
-  </Card>
+  <LinkCard
+    title="Getting Started"
+    description="Learn the basics and start exploring data in minutes."
+    href="/pondpilot/getting-started/"
+  />
+  <LinkCard
+    title="Data Sources"
+    description="Connect to files, databases, and remote sources."
+    href="/pondpilot/data-connections/local-files/"
+  />
+  <LinkCard
+    title="SQL Editor"
+    description="Write and execute SQL with syntax highlighting and autocomplete."
+    href="/pondpilot/exploration/sql-editor/"
+  />
+  <LinkCard
+    title="AI Assistant"
+    description="Get AI-powered help writing and optimizing SQL queries."
+    href="/pondpilot/exploration/ai-assistant/"
+  />
+  <LinkCard
+    title="Data Comparison"
+    description="Compare datasets with powerful diff algorithms."
+    href="/pondpilot/advanced/data-comparison/"
+  />
+  <LinkCard
+    title="Schema Browser"
+    description="Visualize tables and relationships in an interactive graph."
+    href="/pondpilot/exploration/schema-browser/"
+  />
+  <LinkCard
+    title="Keyboard Shortcuts"
+    description="Master PondPilot with keyboard shortcuts."
+    href="/pondpilot/keyboard-shortcuts/"
+  />
 </CardGrid>
 
 ## How It Works

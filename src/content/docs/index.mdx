@@ -2,6 +2,7 @@
 title: PondPilot Documentation
 description: Documentation for the PondPilot ecosystem - data exploration tools that run entirely in your browser.
 template: splash
+editUrl: false
 hero:
   tagline: Privacy-first data exploration tools that run entirely in your browser.
   image:
@@ -16,18 +17,21 @@ hero:
       variant: minimal
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import { Card, CardGrid } from "@astrojs/starlight/components";
 
 <div class="features-grid">
   <div class="feature">
     <div class="feature-icon">🔒</div>
     <h3>Privacy First</h3>
-    <p>Your data never leaves your device. All processing happens in your browser.</p>
+    <p>Your data stays local. All processing happens in your browser.</p>
   </div>
   <div class="feature">
     <div class="feature-icon">⚡</div>
     <h3>Zero Setup</h3>
-    <p>No installation, no server, no configuration. Just open and start exploring.</p>
+    <p>
+      No installation, no server, no configuration. Just open and start
+      exploring.
+    </p>
   </div>
   <div class="feature">
     <div class="feature-icon">🔍</div>
@@ -48,26 +52,30 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
     The main data exploration app. Analyze local and remote data with SQL, powered by DuckDB-WASM. Zero setup, 100% client-side.
 
     [Learn more →](/pondpilot/getting-started/)
+
   </Card>
   <Card title="FlowScope" icon="random">
     SQL lineage engine that analyzes queries to produce detailed lineage graphs showing how tables and columns flow through transformations.
 
     [Learn more →](/flowscope/getting-started/)
+
   </Card>
   <Card title="Widget" icon="puzzle">
     Transform static SQL code blocks into interactive, browser-based SQL editors. Perfect for documentation and tutorials.
 
     [Learn more →](/widget/getting-started/)
+
   </Card>
   <Card title="Proxy" icon="setting">
     Multi-tenant data proxy with per-user isolated DuckDB instances. Query PostgreSQL, MySQL, and SQLite via Flight SQL.
 
     [Learn more →](/proxy/getting-started/)
+
   </Card>
 </CardGrid>
 
 <style>
-{`
+  {`
   .features-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -86,6 +94,7 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
     border: 1px solid var(--sl-color-gray-5);
     border-radius: 1rem;
     padding: 1.5rem;
+    margin: 0;
     transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
                 box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1),
                 border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
